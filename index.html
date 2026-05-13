@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink-pastel: #FFB7C5;
+  --pink-light: #FFD9E0;
+  --pink-soft: #FFEAF0;
+  --blue-pastel: #A8D0E6;
+  --blue-light: #C9E9F6;
+  --blue-soft: #E6F4FA;
+  --primary-dark: #E88CAE;
+  --secondary-dark: #7FB5D9;
+  --success: #7AB2B0;
+  --warning: #F4C3A2;
+  --danger: #E89F9F;
+  --txt: #2D3E50;
+  --txt2: #5C6F87;
+  --txt3: #8A9BB0;
+  --bg: #FEFCF7;
+  --bg2: #FFFFFF;
+  --bdr: #F0E2E8;
+  --shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-hover: 0 12px 24px -8px rgba(0,0,0,0.1);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex}
+
+.sidebar{
+  width:260px;
+  background:linear-gradient(145deg, var(--pink-pastel) 0%, #FCC8D3 50%, var(--blue-pastel) 100%);
+  min-height:100vh;
+  position:fixed;
+  top:0;left:0;bottom:0;
+  z-index:100;
+  display:flex;flex-direction:column;
+  box-shadow:4px 0 20px rgba(0,0,0,0.05);
+}
+.sb-logo{padding:32px 24px 20px}
+.sb-title{font-size:22px;font-weight:800;letter-spacing:-0.3px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.05);line-height:1.2}
+.sb-subtitle{font-size:12px;font-weight:500;color:rgba(255,255,255,0.8);margin-top:4px}
+.sb-divider{height:1px;background:rgba(255,255,255,0.25);margin:8px 20px 16px}
+.sb-nav{flex:1;padding:0 16px}
+.sb-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;border-radius:var(--radius-sm);
+  color:rgba(255,255,255,0.9);font-weight:600;font-size:14px;
+  cursor:pointer;transition:all 0.2s;margin-bottom:6px;
+  border:none;background:transparent;width:100%;text-align:left;
+}
+.sb-item:hover{background:rgba(255,255,255,0.2);transform:translateX(4px);color:#fff}
+.sb-item.active{background:rgba(255,255,255,0.28);color:#fff;font-weight:700}
+.sb-badge{margin-left:auto;background:rgba(255,255,255,0.35);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
+.sb-clock{padding:12px 24px;font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;font-family:'Inter',monospace;letter-spacing:.3px;border-top:1px solid rgba(255,255,255,0.15)}
+.sb-footer{padding:12px 24px 20px;font-size:11px;color:rgba(255,255,255,0.7);text-align:center;font-weight:500}
+
+.main{margin-left:260px;flex:1;padding:32px;min-height:100vh}
+.page{display:none}.page.active{display:block;animation:pgIn .2s ease}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.pg-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.pg-title{font-size:28px;font-weight:800;color:var(--txt);letter-spacing:-0.3px}
+.pg-sub{font-size:14px;color:var(--txt3);margin-top:6px;font-weight:500}
+.pg-actions{display:flex;gap:10px;align-items:center}
+
+.card{background:var(--bg2);border-radius:var(--radius);border:1px solid var(--bdr);padding:24px;box-shadow:var(--shadow);transition:all 0.2s}
+.card:hover{box-shadow:var(--shadow-hover)}
+.card-title{font-weight:700;font-size:16px;color:var(--txt);margin-bottom:16px;padding-left:14px;border-left:4px solid var(--pink-pastel)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px}
+.stat{background:var(--bg2);border-radius:var(--radius-sm);padding:20px;text-align:center;border:1px solid var(--bdr);transition:all 0.2s;cursor:default}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.stat-num{font-size:34px;font-weight:800;color:var(--primary-dark);line-height:1.1}
+.stat-label{font-size:13px;font-weight:600;color:var(--txt2);margin-top:10px;text-transform:uppercase;letter-spacing:0.5px}
+.stat-sub{font-size:11px;color:var(--txt3);margin-top:4px}
+
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--bdr)}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--pink-soft);padding:12px 16px;font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.4px;text-align:left;white-space:nowrap}
+tbody tr{border-top:1px solid var(--bdr);transition:background 0.1s}
+tbody tr:hover{background:var(--blue-soft)}
+td{padding:11px 16px;font-size:13px;font-weight:500;color:var(--txt)}
+
+.badge{display:inline-block;padding:4px 12px;border-radius:40px;font-size:11px;font-weight:700}
+.badge-primary{background:var(--pink-light);color:#B36B8A}
+.badge-success{background:#D4F0F0;color:#5F8B89}
+.badge-warning{background:#FDEBD8;color:#C98A4D}
+.badge-danger{background:#FCE4E4;color:#B47373}
+.badge-neutral{background:#ECF0F3;color:#6B7B8E}
+.badge-audit{background:#EDE9FF;color:#6B52B7;font-size:10px;padding:3px 8px}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+label{font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.4px}
+input,select,textarea{padding:10px 14px;border:1px solid var(--bdr);border-radius:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;background:var(--bg2);transition:0.2s;outline:none;color:var(--txt)}
+input:focus,select:focus,textarea:focus{border-color:var(--pink-pastel);box-shadow:0 0 0 3px rgba(255,183,197,0.2)}
+textarea{resize:vertical;min-height:72px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:40px;font-weight:700;font-size:13px;cursor:pointer;border:none;transition:all 0.2s;white-space:nowrap;font-family:'Inter',sans-serif}
+.btn-primary{background:var(--pink-pastel);color:#5A3E4A}
+.btn-primary:hover{background:#FAA7B7;transform:translateY(-1px)}
+.btn-secondary{background:var(--blue-pastel);color:#2D5F7E}
+.btn-secondary:hover{background:#97C4DF}
+.btn-outline{background:transparent;border:1px solid var(--bdr);color:var(--txt2)}
+.btn-outline:hover{border-color:var(--pink-pastel);color:var(--primary-dark)}
+.btn-success{background:#D4F0F0;color:#3E7977;border:1px solid #B0DEDE}
+.btn-success:hover{background:#C0E8E8}
+.btn-danger{background:#FCE4E4;color:#A05050;border:1px solid #F0C8C8}
+.btn-danger:hover{background:#F8D0D0}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+.search-bar{display:flex;gap:12px;margin-bottom:20px;align-items:center}
+.search-inp{flex:1;position:relative}
+.search-inp input{width:100%;padding-left:14px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:6px 20px;border-radius:40px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt2);transition:0.2s}
+.tab.active{background:var(--blue-pastel);border-color:var(--blue-pastel);color:#2D5F7E}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+
+.mini-bars{display:flex;gap:8px;align-items:flex-end;height:80px;margin-top:16px}
+.bar{flex:1;background:var(--pink-pastel);border-radius:6px 6px 0 0;transition:height 0.4s ease;opacity:0.85;cursor:default}
+.bar:hover{opacity:1}
+.bar.alt{background:var(--blue-pastel)}
+.bar-labels{display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--txt3);font-weight:500}
+.bar-label{flex:1;text-align:center}
+.donut-wrap{display:flex;align-items:center;gap:24px;padding:4px 0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--txt2)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+.activity{display:flex;flex-direction:column;gap:10px}
+.act-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--bdr)}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--pink-pastel);flex-shrink:0;margin-top:5px}
+.act-dot.audit{background:#A78BFA}
+.act-info{flex:1;min-width:0}
+.act-main{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act-time{font-size:11px;color:var(--txt3);margin-top:2px}
+
+.empty{text-align:center;padding:48px 20px;color:var(--txt3);font-weight:500}
+.section-label{font-weight:700;font-size:13px;color:var(--txt2);margin:20px 0 12px;padding-bottom:6px;border-bottom:1px dashed var(--bdr)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.detail-item{padding:12px;background:var(--bg);border-radius:12px;border:1px solid var(--bdr)}
+.detail-key{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px}
+.detail-val{font-size:14px;font-weight:600;margin-top:4px;color:var(--txt)}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;gap:6px;margin-top:16px;flex-wrap:wrap}
+.pg-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt2);font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.pg-btn:hover{border-color:var(--pink-pastel);color:var(--primary-dark)}
+.pg-btn.active{background:var(--pink-pastel);border-color:var(--pink-pastel);color:#5A3E4A}
+.pg-btn:disabled{opacity:.4;cursor:not-allowed}
+.pg-info{font-size:12px;color:var(--txt3);margin:0 6px}
+
+/* Audit log panel */
+.audit-panel{
+  position:fixed;right:0;top:0;bottom:0;width:320px;
+  background:#fff;
+  border-left:1px solid var(--bdr);
+  box-shadow:-4px 0 20px rgba(0,0,0,0.06);
+  z-index:200;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.audit-panel.open{transform:translateX(0)}
+.audit-header{
+  padding:20px 20px 14px;
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--pink-soft);
+  flex-shrink:0;
+}
+.audit-title{font-weight:800;font-size:15px;color:var(--txt)}
+.audit-sub{font-size:11px;color:var(--txt3);margin-top:2px}
+.audit-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--txt3);line-height:1}
+.audit-list{flex:1;overflow-y:auto;padding:14px}
+.audit-entry{
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--bdr);
+  margin-bottom:8px;
+  background:var(--bg);
+  font-size:12px;
+  border-left:3px solid var(--pink-pastel);
+  transition:.15s;
+}
+.audit-entry:hover{border-left-color:var(--primary-dark);background:#fff}
+.audit-entry.create{border-left-color:#7AB2B0}
+.audit-entry.update{border-left-color:#F4C3A2}
+.audit-entry.delete{border-left-color:#E89F9F}
+.audit-entry-action{font-weight:700;color:var(--txt);margin-bottom:3px}
+.audit-entry-detail{color:var(--txt3);line-height:1.5}
+.audit-entry-time{font-size:10px;color:var(--txt3);margin-top:5px;font-family:'Inter',monospace}
+.audit-empty{text-align:center;padding:32px 16px;color:var(--txt3);font-size:13px}
+.audit-stats{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bdr);background:var(--bg);flex-shrink:0}
+.audit-stat-item{flex:1;text-align:center}
+.audit-stat-n{font-size:16px;font-weight:800;color:var(--primary-dark)}
+.audit-stat-l{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.4px}
+.audit-btn{
+  position:fixed;bottom:32px;right:24px;
+  background:var(--pink-pastel);
+  border:none;border-radius:40px;
+  padding:10px 18px;
+  font-weight:700;font-size:13px;
+  cursor:pointer;color:#5A3E4A;
+  box-shadow:0 4px 14px rgba(255,183,197,0.5);
+  transition:all .2s;
+  z-index:150;
+  display:flex;align-items:center;gap:7px;
+}
+.audit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,183,197,0.6)}
+.audit-pulse{width:8px;height:8px;border-radius:50%;background:#E88CAE;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* Real-time indicator */
+.rt-indicator{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--success);font-weight:600;
+}
+.rt-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.8s ease-in-out infinite}
+
+/* Modal */
+#toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{background:#fff;border-radius:12px;padding:12px 20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);font-weight:600;font-size:13px;border-left:4px solid var(--pink-pastel);color:var(--txt);pointer-events:all;animation:slideIn 0.2s ease}
+.toast-item.success{border-left-color:var(--success)}
+.toast-item.error{border-left-color:var(--danger)}
+.toast-item.warning{border-left-color:var(--warning)}
+@keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.25);backdrop-filter:blur(2px);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:28px;padding:28px;width:540px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 30px rgba(0,0,0,0.1);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--bdr)}
+.modal-title{font-size:20px;font-weight:800;color:var(--txt)}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--txt3);line-height:1;transition:.15s}
+.modal-close:hover{color:var(--primary-dark)}
+.modal-footer{margin-top:24px;display:flex;justify-content:flex-end;gap:12px;padding-top:16px;border-top:1px solid var(--bdr)}
+
+/* AI chat */
+.ai-chat-wrap{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:16px;padding:4px 0}
+.ai-msg-user{align-self:flex-end;background:var(--pink-pastel);color:#4A2E3A;padding:10px 16px;border-radius:18px 18px 4px 18px;max-width:80%;font-size:13px;font-weight:500;line-height:1.5}
+.ai-msg-ai{align-self:flex-start;background:var(--bg);border:1px solid var(--bdr);padding:12px 16px;border-radius:18px 18px 18px 4px;max-width:85%;font-size:13px;font-weight:500;line-height:1.6;color:var(--txt)}
+.ai-msg-ai strong{color:var(--primary-dark)}
+.ai-row{display:flex;gap:10px;align-items:center}
+.ai-row input{flex:1}
+.ai-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ai-chip{padding:5px 14px;border-radius:40px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--bg2);color:var(--txt2);transition:.15s}
+.ai-chip:hover{border-color:var(--pink-pastel);color:var(--primary-dark);background:var(--pink-soft)}
+
+/* Table filter row */
+.tbl-controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.tbl-controls input{flex:1;min-width:200px;padding:8px 14px}
+.row-count{font-size:12px;color:var(--txt3);margin-left:auto}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-title">Delivery<br>System</div>
+  </div>
+  <div class="sb-divider"></div>
+  <div class="sb-nav" id="nav">
+    <button class="sb-item active" onclick="gotoPage('dashboard',this)">Dashboard</button>
+    <button class="sb-item" onclick="gotoPage('customers',this)">Customers <span class="sb-badge" id="nb-cus">0</span></button>
+    <button class="sb-item" onclick="gotoPage('orders',this)">Orders <span class="sb-badge" id="nb-ord">0</span></button>
+    <button class="sb-item" onclick="gotoPage('deliveries',this)">Deliveries <span class="sb-badge" id="nb-del">0</span></button>
+    <button class="sb-item" onclick="gotoPage('vehicles',this)">Fleet</button>
+    <button class="sb-item" onclick="gotoPage('expenses',this)">Expenses</button>
+    <button class="sb-item" onclick="gotoPage('reports',this)">Reports</button>
+    <button class="sb-item" onclick="gotoPage('audit',this)">Audit Log <span class="sb-badge" id="nb-audit">0</span></button>
+    <button class="sb-item" onclick="gotoPage('ai',this)">AI Assistant</button>
+  </div>
+  <div class="sb-clock" id="sb-clock">Loading...</div>
+  <div class="sb-footer">delivery with hannie</div>
+</nav>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="pg-header">
+      <div class="pg-left">
+        <div class="pg-title">Dashboard Overview</div>
+        <div class="pg-sub">Real-time delivery operations — <span id="dash-today-orders">0</span> new orders today</div>
+      </div>
+      <div class="rt-indicator"><div class="rt-dot"></div> Live</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-num" id="s-cus">0</div><div class="stat-label">Customers</div><div class="stat-sub">Total registered</div></div>
+      <div class="stat"><div class="stat-num" id="s-ord">0</div><div class="stat-label">Orders</div><div class="stat-sub" id="s-ord-sub">0 pending</div></div>
+      <div class="stat"><div class="stat-num" id="s-del">0</div><div class="stat-label">Deliveries</div><div class="stat-sub" id="s-del-sub">0 in transit</div></div>
+      <div class="stat"><div class="stat-num" id="s-exp">0</div><div class="stat-label">Total Expenses</div><div class="stat-sub">All time</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Weekly Expenses (last 7 days)</div><div class="mini-bars" id="dash-bars"></div><div class="bar-labels" id="dash-bar-labels"></div></div>
+      <div class="card"><div class="card-title">Order Status Distribution</div><div class="donut-wrap"><canvas id="donut" width="110" height="110"></canvas><div class="donut-legend" id="donut-legend"></div></div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Recent Activity</div><div class="activity" id="dash-activity"></div></div>
+      <div class="card"><div class="card-title">Fleet Overview</div><div class="tbl-wrap"><table><thead><tr><th>Vehicle</th><th>License</th><th>Status</th></tr></thead><tbody id="dash-vehicles"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="page" id="page-customers">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Customers</div><div class="pg-sub" id="cus-pg-sub">510 registered customers</div></div>
+      <div class="pg-actions"><button class="btn btn-primary" onclick="openModal('modal-add-customer')">+ Add Customer</button></div>
+    </div>
+    <div class="card">
+      <div class="tbl-controls">
+        <input type="text" id="cus-search" placeholder="Search by name or phone..." oninput="renderCustomers()">
+        <span class="row-count" id="cus-row-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Email</th><th>Orders</th><th>Joined</th><th></th></tr></thead>
+        <tbody id="cus-tbody"></tbody></table>
+      </div>
+      <div class="pagination" id="cus-pagination"></div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="page" id="page-orders">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Orders</div><div class="pg-sub" id="ord-pg-sub">Manage delivery orders</div></div>
+      <div class="pg-actions"><button class="btn btn-primary" onclick="openModal('modal-add-order')">+ Create Order</button></div>
+    </div>
+    <div class="tabs" id="order-tabs">
+      <div class="tab active" onclick="filterOrders('all',this)">All</div>
+      <div class="tab" onclick="filterOrders('Pending',this)">Pending</div>
+      <div class="tab" onclick="filterOrders('Assigned',this)">Assigned</div>
+      <div class="tab" onclick="filterOrders('In Transit',this)">In Transit</div>
+      <div class="tab" onclick="filterOrders('Completed',this)">Completed</div>
+      <div class="tab" onclick="filterOrders('Cancelled',this)">Cancelled</div>
+    </div>
+    <div class="card">
+      <div class="tbl-controls">
+        <input type="text" id="ord-search" placeholder="Search by customer or order ID..." oninput="renderOrders()">
+        <span class="row-count" id="ord-row-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Weight</th><th>Status</th><th>Expenses</th><th>Actions</th></tr></thead>
+        <tbody id="ord-tbody"></tbody></table>
+      </div>
+      <div class="pagination" id="ord-pagination"></div>
+    </div>
+  </div>
+
+  <!-- DELIVERIES -->
+  <div class="page" id="page-deliveries">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Deliveries</div><div class="pg-sub" id="del-pg-sub">Track all delivery assignments</div></div>
+    </div>
+    <div class="card">
+      <div class="tbl-controls">
+        <input type="text" id="del-search" placeholder="Search by driver or vehicle..." oninput="renderDeliveries()">
+        <span class="row-count" id="del-row-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Delivery ID</th><th>Order</th><th>Driver</th><th>Vehicle</th><th>Delivery Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="del-tbody"></tbody></table>
+      </div>
+      <div class="pagination" id="del-pagination"></div>
+    </div>
+  </div>
+
+  <!-- VEHICLES -->
+  <div class="page" id="page-vehicles">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Fleet Management</div><div class="pg-sub">Vehicle registry and status</div></div>
+      <div class="pg-actions"><button class="btn btn-primary" onclick="openModal('modal-add-vehicle')">+ Add Vehicle</button></div>
+    </div>
+    <div class="grid3" id="vehicle-cards"></div>
+  </div>
+
+  <!-- EXPENSES -->
+  <div class="page" id="page-expenses">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Expenses</div><div class="pg-sub" id="exp-pg-sub">All delivery costs</div></div>
+      <div class="pg-actions"><button class="btn btn-primary" onclick="openModal('modal-add-expense')">+ Record Expense</button></div>
+    </div>
+    <div class="card">
+      <div class="tbl-controls">
+        <input type="text" id="exp-search" placeholder="Search by delivery or type..." oninput="renderExpenses()">
+        <span class="row-count" id="exp-row-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Expense ID</th><th>Delivery</th><th>Type</th><th>Amount</th><th>Description</th><th>Date</th></tr></thead>
+        <tbody id="exp-tbody"></tbody></table>
+      </div>
+      <div class="pagination" id="exp-pagination"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="page-reports">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Reports</div><div class="pg-sub">Analytics and performance insights</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Top 10 Customers</div><div class="tbl-wrap"><table><thead><tr><th>Rank</th><th>Customer</th><th>Orders</th><th>Total Spent</th></tr></thead><tbody id="rpt-top-cus"></tbody></table></div></div>
+      <div class="card"><div class="card-title">Vehicle Performance</div><div class="tbl-wrap"><table><thead><tr><th>Vehicle</th><th>Type</th><th>Trips</th><th>Completed</th><th>Rate</th></tr></thead><tbody id="rpt-vehicle"></tbody></table></div></div>
+      <div class="card"><div class="card-title">Expense by Type</div><div id="rpt-expense-types"></div></div>
+      <div class="card"><div class="card-title">Outstanding Orders</div><div class="tbl-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Waiting</th></tr></thead><tbody id="rpt-outstanding"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <!-- AUDIT LOG (full page) -->
+  <div class="page" id="page-audit">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">Audit Log</div><div class="pg-sub">Complete change history with real-time tracking</div></div>
+      <div class="pg-actions">
+        <div class="rt-indicator"><div class="rt-dot"></div> Recording live</div>
+        <button class="btn btn-outline btn-sm" onclick="clearAudit()">Clear Log</button>
+      </div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat"><div class="stat-num" id="au-total">0</div><div class="stat-label">Total Events</div></div>
+      <div class="stat"><div class="stat-num" id="au-create" style="color:#7AB2B0">0</div><div class="stat-label">Created</div></div>
+      <div class="stat"><div class="stat-num" id="au-update" style="color:#F4C3A2">0</div><div class="stat-label">Updated</div></div>
+      <div class="stat"><div class="stat-num" id="au-session">0</div><div class="stat-label">This Session</div></div>
+    </div>
+    <div class="card">
+      <div class="tbl-controls">
+        <input type="text" id="audit-search" placeholder="Search audit events..." oninput="renderAuditPage()">
+        <select id="audit-type-filter" onchange="renderAuditPage()" style="width:160px">
+          <option value="">All Types</option>
+          <option value="CREATE">Create</option>
+          <option value="UPDATE">Update</option>
+          <option value="DELETE">Delete</option>
+        </select>
+        <select id="audit-table-filter" onchange="renderAuditPage()" style="width:160px">
+          <option value="">All Tables</option>
+          <option value="Customers">Customers</option>
+          <option value="Orders">Orders</option>
+          <option value="Deliveries">Deliveries</option>
+          <option value="Vehicles">Vehicles</option>
+          <option value="Expenses">Expenses</option>
+        </select>
+        <span class="row-count" id="audit-row-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Timestamp</th><th>Action</th><th>Table</th><th>Record ID</th><th>Details</th><th>Session</th></tr></thead>
+          <tbody id="audit-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="audit-pagination"></div>
+    </div>
+  </div>
+
+  <!-- AI ASSISTANT -->
+  <div class="page" id="page-ai">
+    <div class="pg-header">
+      <div class="pg-left"><div class="pg-title">AI Assistant</div><div class="pg-sub">Powered by Claude — Ask anything about your data</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Chat with AI</div>
+      <div class="ai-chat-wrap" id="ai-chat">
+        <div class="ai-msg-ai">Hello! I'm Claude, your AI assistant for the Delivery Management System. I have full access to your live data — ask me about orders, expenses, performance, or anything else!</div>
+      </div>
+      <div class="ai-row">
+        <input type="text" id="ai-input" placeholder="Ask about orders, costs, vehicle performance, trends..." onkeydown="if(event.key==='Enter')sendAI()">
+        <button class="btn btn-primary" onclick="sendAI()">Send</button>
+      </div>
+      <div class="ai-chips">
+        <div class="ai-chip" onclick="quickAsk('Give me a full performance analysis of this delivery system')">Full analysis</div>
+        <div class="ai-chip" onclick="quickAsk('Which customers have the most orders and how much have they spent?')">Top customers</div>
+        <div class="ai-chip" onclick="quickAsk('What are the main cost drivers and how can we reduce expenses?')">Cost optimization</div>
+        <div class="ai-chip" onclick="quickAsk('Which vehicles are most efficient? Give me a detailed breakdown.')">Fleet efficiency</div>
+        <div class="ai-chip" onclick="quickAsk('Are there any orders that have been pending too long? List the oldest ones.')">Overdue orders</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- main -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-add-customer">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Customer</div><button class="modal-close" onclick="closeModal('modal-add-customer')">&times;</button></div>
+    <div class="form-row"><div class="form-group"><label>Full Name *</label><input id="f-cus-name" placeholder="Nguyen Van A"></div><div class="form-group"><label>Phone Number *</label><input id="f-cus-phone" placeholder="0901234567"></div></div>
+    <div class="form-row full"><div class="form-group"><label>Address *</label><input id="f-cus-addr" placeholder="123 Street, District 1, HCMC"></div></div>
+    <div class="form-row full"><div class="form-group"><label>Email</label><input id="f-cus-email" placeholder="customer@example.com" type="email"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-customer')">Cancel</button><button class="btn btn-primary" onclick="addCustomer()">Add Customer</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-order">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Create Order</div><button class="modal-close" onclick="closeModal('modal-add-order')">&times;</button></div>
+    <div class="form-row"><div class="form-group"><label>Customer *</label><select id="f-ord-cus"><option value="">-- Select customer --</option></select></div><div class="form-group"><label>Weight (kg) *</label><input id="f-ord-weight" type="number" placeholder="5.0" step="0.1" min="0.1"></div></div>
+    <div class="form-row"><div class="form-group"><label>Driver Name *</label><input id="f-ord-driver" placeholder="Driver name"></div><div class="form-group"><label>Delivery Date *</label><input id="f-ord-date" type="date"></div></div>
+    <div class="form-row full"><div class="form-group"><label>Notes</label><textarea id="f-ord-notes" placeholder="Additional notes..."></textarea></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-order')">Cancel</button><button class="btn btn-primary" onclick="addOrder()">Create & Assign Vehicle</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-vehicle">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Vehicle</div><button class="modal-close" onclick="closeModal('modal-add-vehicle')">&times;</button></div>
+    <div class="form-row"><div class="form-group"><label>Vehicle Type *</label><select id="f-veh-type"><option>Motorbike</option><option>Van</option><option>Truck</option><option>Electric Bike</option></select></div><div class="form-group"><label>License Plate *</label><input id="f-veh-plate" placeholder="51A-12345"></div></div>
+    <div class="form-row full"><div class="form-group"><label>Max Capacity (kg) *</label><input id="f-veh-cap" type="number" placeholder="200" min="1"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-vehicle')">Cancel</button><button class="btn btn-primary" onclick="addVehicle()">Add Vehicle</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-expense">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Record Expense</div><button class="modal-close" onclick="closeModal('modal-add-expense')">&times;</button></div>
+    <div class="form-row"><div class="form-group"><label>Delivery *</label><select id="f-exp-del"><option value="">-- Select delivery --</option></select></div><div class="form-group"><label>Expense Type *</label><select id="f-exp-type"><option>Fuel</option><option>Toll</option><option>Handling</option><option>Packaging</option><option>Other</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label>Amount (VND) *</label><input id="f-exp-amt" type="number" placeholder="50000" min="1"></div><div class="form-group"><label>Description</label><input id="f-exp-desc" placeholder="e.g., Petrol refill"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-expense')">Cancel</button><button class="btn btn-primary" onclick="addExpense()">Record Expense</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-detail-title">Details</div><button class="modal-close" onclick="closeModal('modal-detail')">&times;</button></div>
+    <div id="modal-detail-content"></div>
+    <div class="modal-footer" id="modal-detail-footer"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+const PAGE_SIZE = 25;
+let nextId = {cus:1, ord:1, del:1, veh:1, exp:1};
+const db = {customers:[], vehicles:[], orders:[], deliveries:[], expenses:[]};
+const auditLog = [];
+let sessionId = 'SES-' + Math.random().toString(36).slice(2,7).toUpperCase();
+let orderFilter = 'all';
+
+// Pagination state
+const pages = {cus:1, ord:1, del:1, exp:1, audit:1};
+
+function rDate(daysAgo=60, offsetFwd=0){
+  const ms = Math.random()*daysAgo*86400000;
+  return new Date(Date.now() - ms + offsetFwd*86400000).toISOString().slice(0,10);
+}
+function rDateTime(daysAgo=60){
+  return new Date(Date.now()-Math.random()*daysAgo*86400000).toISOString().replace('T',' ').slice(0,19);
+}
+function fmtMoney(n){ return new Intl.NumberFormat('vi-VN').format(n)+'đ'; }
+function fmtDate(s){ return s?s.slice(0,10).split('-').reverse().join('/'):'—'; }
+function fmtDateTime(s){
+  if(!s) return '—';
+  const d = new Date(s.replace(' ','T'));
+  return d.toLocaleDateString('vi-VN')+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function nowISO(){ return new Date().toISOString().replace('T',' ').slice(0,19); }
+function gv(id){return (document.getElementById(id)||{value:''}).value.trim();}
+function clearForm(ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})}
+function esc(s){if(!s)return '';return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIT LOGGING
+// ═══════════════════════════════════════════════════════════════
+function logAudit(action, table, recordId, details){
+  auditLog.unshift({
+    id: auditLog.length+1,
+    timestamp: nowISO(),
+    action,        // CREATE | UPDATE | DELETE
+    table,
+    recordId,
+    details,
+    session: sessionId
+  });
+  document.getElementById('nb-audit').textContent = auditLog.length;
+  renderAuditStats();
+  if(document.getElementById('page-audit').classList.contains('active')){
+    renderAuditPage();
+  }
+}
+function renderAuditStats(){
+  document.getElementById('au-total').textContent  = auditLog.length;
+  document.getElementById('au-create').textContent = auditLog.filter(a=>a.action==='CREATE').length;
+  document.getElementById('au-update').textContent = auditLog.filter(a=>a.action==='UPDATE').length;
+  document.getElementById('au-session').textContent= auditLog.filter(a=>a.session===sessionId).length;
+}
+function renderAuditPage(){
+  const q = (gv('audit-search')||'').toLowerCase();
+  const tf = gv('audit-type-filter');
+  const tabf = gv('audit-table-filter');
+  const rows = auditLog.filter(a=>{
+    if(tf && a.action!==tf) return false;
+    if(tabf && a.table!==tabf) return false;
+    if(q && !JSON.stringify(a).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('audit-row-count').textContent = rows.length+' events';
+  renderTablePage('audit', rows, pages.audit, (slice)=>{
+    return slice.map(a=>`<tr>
+      <td style="font-family:'Inter',monospace;font-size:11px;color:var(--txt3)">${a.timestamp}</td>
+      <td><span class="badge ${a.action==='CREATE'?'badge-success':a.action==='UPDATE'?'badge-warning':'badge-danger'}">${a.action}</span></td>
+      <td><span class="badge badge-neutral">${a.table}</span></td>
+      <td style="font-family:'Inter',monospace">#${a.recordId}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--txt2)">${esc(a.details)}</td>
+      <td style="font-family:'Inter',monospace;font-size:11px;color:var(--txt3)">${a.session}</td>
+    </tr>`).join('');
+  }, 'audit-tbody', 'audit-pagination');
+}
+function clearAudit(){
+  if(!confirm('Clear all audit log entries?')) return;
+  auditLog.length=0;
+  renderAuditStats();
+  renderAuditPage();
+  toast('Audit log cleared','warning');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SEED — 510 ROWS PER TABLE
+// ═══════════════════════════════════════════════════════════════
+function seed(){
+  const VN_FIRST_M=['Nguyen','Tran','Le','Pham','Hoang','Phan','Vu','Dang','Bui','Do','Ho','Ngo','Duong','Ly','Dinh','Dao'];
+  const VN_MID=['Van','Thi','Minh','Quoc','Duc','Anh','Thanh','Bao','Nhat','Hai','Khanh'];
+  const VN_LAST=['An','Binh','Chi','Dung','Em','Giang','Ha','Huong','Khanh','Lan','Mai','Nam','Oanh','Phuong','Quang','Son','Thao','Uyen','Van','Xuan','Yen','Tuan','Hung','Hoa','Long','Linh','Lam','Tung','Hieu','Ngan'];
+  const DISTRICTS=['Q.1','Q.2','Q.3','Q.4','Q.5','Q.6','Q.7','Q.8','Q.9','Q.10','Q.11','Q.12','Binh Thanh','Tan Binh','Go Vap','Thu Duc','Binh Duong','Dong Nai','Hanoi','Da Nang'];
+  const STREETS=['Nguyen Hue','Le Loi','Tran Phu','Hai Ba Trung','Ly Tu Trong','CMT8','Vo Van Tan','Pasteur','Nam Ky KN','Dien Bien Phu','Hoang Dieu','Truong Chinh','Nguyen Van Linh','Le Duc Tho','Kha Van Can','Phan Xich Long'];
+  const PREFIXES=['032','033','034','035','036','037','038','039','070','076','077','078','079','086','089','090','093','096','097','098'];
+  const VTYPES=['Motorbike','Van','Truck','Electric Bike'];
+  const VCAP={Motorbike:50,Van:500,Truck:5000,'Electric Bike':30};
+  const VSTATUS_W=['Available','Available','Available','In Use','In Use','Maintenance'];
+  const PROV=['29','30','43','51','52','59','61','65','66','71','72','75','79','80','81','82','83','84','86','92'];
+  const LETTERS='ABCDEFGHJKLMNPSTUVXY';
+  const DRIVER_FIRST=['Alex','Kim','Sam','Chris','Jordan','Morgan','Taylor','Casey','Jamie','Blake','Drew','Quinn','Avery','Reese','Parker'];
+  const DRIVER_LAST=['Nguyen','Tran','Le','Pham','Hoang','Bui','Do','Ngo','Dang','Vo'];
+  const NOTES=['Handle with care','Fragile items','Refrigerate during transit','Call before delivery','Leave at door','Signature required','No special instructions','Urgent delivery','Heavy package','Contains electronics','Deliver to reception','Weekend delivery ok',null,null,null,null,null];
+  const ETYPES=['Fuel','Toll','Handling','Packaging','Other'];
+  const EDESCS={Fuel:['Petrol refill','Diesel fill-up','Electric charge','Fuel top-up'],Toll:['Highway toll','Bridge fee','City toll gate','Tunnel fee'],Handling:['Loading fee','Unloading fee','Manual handling','Crane usage'],Packaging:['Bubble wrap','Box cost','Tape & labels','Packing service'],Other:['Parking fee','Driver meal','Overtime fee','Emergency fee']};
+  const ERANGES={Fuel:[20,500],Toll:[5,100],Handling:[10,200],Packaging:[5,80],Other:[5,150]};
+
+  function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
+  function rndInt(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+
+  const usedPhones=new Set(), usedPlates=new Set();
+
+  // 510 Customers
+  for(let i=0;i<510;i++){
+    const nm=rnd(VN_FIRST_M)+' '+rnd(VN_MID)+' '+rnd(VN_LAST);
+    let phone;
+    do{ phone=rnd(PREFIXES)+String(rndInt(1000000,9999999)); }while(usedPhones.has(phone));
+    usedPhones.add(phone);
+    const dist=rnd(DISTRICTS);
+    const addr=rndInt(1,999)+' '+rnd(STREETS)+', '+dist;
+    const email='cus'+(i+1)+(i%2===0?'@gmail.com':'@yahoo.com');
+    db.customers.push({id:nextId.cus++,name:nm,phone,address:addr,email,createdAt:rDate(730)});
+  }
+
+  // 510 Vehicles
+  for(let i=0;i<510;i++){
+    const vt=rnd(VTYPES);
+    const cap=Math.round(VCAP[vt]*(.5+Math.random()*.5)*10)/10;
+    const st=rnd(VSTATUS_W);
+    let plate;
+    do{
+      const p=rnd(PROV), l=LETTERS[rndInt(0,LETTERS.length-1)];
+      const n=String(rndInt(10000,99999));
+      plate=p+l+'-'+n.slice(0,3)+'.'+n.slice(3);
+    }while(usedPlates.has(plate));
+    usedPlates.add(plate);
+    db.vehicles.push({id:nextId.veh++,type:vt,plate,capacity:cap,status:st,createdAt:rDate(1000)});
+  }
+
+  // 510 Orders
+  const OSTATUS_W=['Completed','Completed','Completed','Completed','In Transit','In Transit','In Transit','Assigned','Assigned','Pending','Cancelled'];
+  for(let i=0;i<510;i++){
+    const cus=db.customers[rndInt(0,db.customers.length-1)];
+    const st=rnd(OSTATUS_W);
+    const w=Math.round((.5+Math.random()*199.5)*10)/10;
+    db.orders.push({id:nextId.ord++,customerId:cus.id,customerName:cus.name,orderDate:rDate(500),status:st,weight:w,notes:rnd(NOTES)||null});
+  }
+
+  // 510 Deliveries (one per order, for non-Pending/Cancelled orders, up to 510)
+  const deliverableOrders = db.orders.filter(o=>!['Pending','Cancelled'].includes(o.status)).slice(0,510);
+  deliverableOrders.forEach((ord, i)=>{
+    const veh=db.vehicles[i%db.vehicles.length];
+    const driver=rnd(DRIVER_FIRST)+' '+rnd(DRIVER_LAST);
+    const dStatus = ord.status==='Completed'?'Delivered': ord.status==='In Transit'?'In Transit':'Scheduled';
+    db.deliveries.push({
+      id:nextId.del++,orderId:ord.id,vehicleId:veh.id,vehiclePlate:veh.plate,vehicleType:veh.type,
+      driverName:driver,deliveryDate:rDate(0,3),status:dStatus,createdAt:ord.orderDate
+    });
+  });
+  // Fill up to 510 deliveries if fewer deliverable orders
+  while(db.deliveries.length<510){
+    const ord=db.orders[rndInt(0,db.orders.length-1)];
+    const veh=db.vehicles[rndInt(0,db.vehicles.length-1)];
+    const driver=rnd(DRIVER_FIRST)+' '+rnd(DRIVER_LAST);
+    db.deliveries.push({
+      id:nextId.del++,orderId:ord.id,vehicleId:veh.id,vehiclePlate:veh.plate,vehicleType:veh.type,
+      driverName:driver,deliveryDate:rDate(30),status:rnd(['Scheduled','In Transit','Delivered']),createdAt:ord.orderDate
+    });
+  }
+
+  // 510 Expenses
+  for(let i=0;i<510;i++){
+    const del=db.deliveries[rndInt(0,db.deliveries.length-1)];
+    const et=rnd(ETYPES);
+    const [lo,hi]=ERANGES[et];
+    const amt=rndInt(lo,hi)*1000;
+    db.expenses.push({id:nextId.exp++,deliveryId:del.id,type:et,amount:amt,description:rnd(EDESCS[et]),recordedAt:rDate(400)});
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATUS BADGES
+// ═══════════════════════════════════════════════════════════════
+const SB={
+  'Pending':    '<span class="badge badge-warning">Pending</span>',
+  'Assigned':   '<span class="badge badge-primary">Assigned</span>',
+  'In Transit': '<span class="badge badge-primary">In Transit</span>',
+  'Completed':  '<span class="badge badge-success">Completed</span>',
+  'Cancelled':  '<span class="badge badge-neutral">Cancelled</span>',
+  'Scheduled':  '<span class="badge badge-warning">Scheduled</span>',
+  'Delivered':  '<span class="badge badge-success">Delivered</span>',
+  'Failed':     '<span class="badge badge-danger">Failed</span>',
+  'Available':  '<span class="badge badge-success">Available</span>',
+  'In Use':     '<span class="badge badge-primary">In Use</span>',
+  'Maintenance':'<span class="badge badge-warning">Maintenance</span>',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// PAGINATION HELPER
+// ═══════════════════════════════════════════════════════════════
+function renderTablePage(key, rows, currentPage, rowRenderer, tbodyId, paginationId){
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+  const cp = Math.min(currentPage, totalPages);
+  pages[key] = cp;
+  const start = (cp-1)*PAGE_SIZE;
+  const slice = rows.slice(start, start+PAGE_SIZE);
+
+  document.getElementById(tbodyId).innerHTML = slice.length
+    ? rowRenderer(slice)
+    : `<tr><td colspan="20"><div class="empty">No records found</div></td></tr>`;
+
+  // Pagination controls
+  const pgEl = document.getElementById(paginationId);
+  if(!pgEl) return;
+  if(totalPages<=1){pgEl.innerHTML='';return;}
+
+  let html = `<span class="pg-info">Showing ${start+1}–${Math.min(start+PAGE_SIZE,total)} of ${total}</span>`;
+  html += `<button class="pg-btn" onclick="changePage('${key}',1)" ${cp===1?'disabled':''}>«</button>`;
+  html += `<button class="pg-btn" onclick="changePage('${key}',${cp-1})" ${cp===1?'disabled':''}>‹</button>`;
+
+  // Page window
+  const w=2;
+  for(let i=Math.max(1,cp-w);i<=Math.min(totalPages,cp+w);i++){
+    html+=`<button class="pg-btn ${i===cp?'active':''}" onclick="changePage('${key}',${i})">${i}</button>`;
+  }
+  html += `<button class="pg-btn" onclick="changePage('${key}',${cp+1})" ${cp===totalPages?'disabled':''}>›</button>`;
+  html += `<button class="pg-btn" onclick="changePage('${key}',${totalPages})" ${cp===totalPages?'disabled':''}>»</button>`;
+  pgEl.innerHTML = html;
+}
+
+function changePage(key, p){
+  pages[key]=p;
+  if(key==='cus') renderCustomers();
+  else if(key==='ord') renderOrders();
+  else if(key==='del') renderDeliveries();
+  else if(key==='exp') renderExpenses();
+  else if(key==='audit') renderAuditPage();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════════════
+function gotoPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelector(`[onclick*="'${name}'"]`)?.classList.add('active');
+  refresh();
+}
+
+function refresh(){
+  renderSideBadges();
+  renderDashboard();
+  renderCustomers();
+  renderOrders();
+  renderDeliveries();
+  renderVehicles();
+  renderExpenses();
+  renderReports();
+  renderAuditStats();
+  if(document.getElementById('page-audit').classList.contains('active')) renderAuditPage();
+  populateSelects();
+}
+function renderSideBadges(){
+  document.getElementById('nb-cus').textContent = db.customers.length;
+  document.getElementById('nb-ord').textContent = db.orders.length;
+  document.getElementById('nb-del').textContent = db.deliveries.length;
+  document.getElementById('nb-audit').textContent = auditLog.length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderDashboard(){
+  document.getElementById('s-cus').textContent = db.customers.length;
+  document.getElementById('s-ord').textContent = db.orders.length;
+  document.getElementById('s-del').textContent = db.deliveries.length;
+  const totExp = db.expenses.reduce((a,e)=>a+e.amount,0);
+  document.getElementById('s-exp').textContent = fmtMoney(totExp);
+  const pending = db.orders.filter(o=>['Pending','Assigned'].includes(o.status)).length;
+  const inT = db.deliveries.filter(d=>d.status==='In Transit').length;
+  document.getElementById('s-ord-sub').textContent = pending+' pending/assigned';
+  document.getElementById('s-del-sub').textContent = inT+' in transit';
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('dash-today-orders').textContent=db.orders.filter(o=>o.orderDate===today).length;
+
+  // Bars
+  const barsDiv=document.getElementById('dash-bars'),lblDiv=document.getElementById('dash-bar-labels');
+  barsDiv.innerHTML='';lblDiv.innerHTML='';
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*86400000);days.push(d.toISOString().slice(0,10));}
+  const dayTotals=days.map(d=>db.expenses.filter(e=>e.recordedAt===d).reduce((a,e)=>a+e.amount,0));
+  const maxT=Math.max(...dayTotals,1);
+  days.forEach((d,i)=>{
+    const h=Math.max(8,Math.round(dayTotals[i]/maxT*72));
+    barsDiv.innerHTML+=`<div class="bar ${i%2===0?'alt':''}" style="height:${h}px" title="${fmtMoney(dayTotals[i])}"></div>`;
+    const day=new Date(d);
+    lblDiv.innerHTML+=`<div class="bar-label">${day.getDate()}/${day.getMonth()+1}</div>`;
+  });
+
+  // Donut
+  const sc={Pending:0,Assigned:0,'In Transit':0,Completed:0,Cancelled:0};
+  db.orders.forEach(o=>{sc[o.status]=(sc[o.status]||0)+1;});
+  drawDonut(sc);
+
+  // Activity — mix orders and audit
+  const actItems=[
+    ...db.orders.slice(-4).map(o=>({dot:'',text:`Order #${o.id} — ${o.customerName}`,time:fmtDate(o.orderDate)})),
+    ...auditLog.slice(0,3).map(a=>({dot:'audit',text:`${a.action} on ${a.table} #${a.recordId}`,time:fmtDateTime(a.timestamp)}))
+  ].slice(0,6);
+  document.getElementById('dash-activity').innerHTML=actItems.map(a=>`
+    <div class="act-item">
+      <div class="act-dot ${a.dot}"></div>
+      <div class="act-info"><div class="act-main">${esc(a.text)}</div><div class="act-time">${a.time}</div></div>
+    </div>`).join('');
+
+  document.getElementById('dash-vehicles').innerHTML=db.vehicles.slice(0,6).map(v=>`<tr><td>${v.type}</td><td>${v.plate}</td><td>${SB[v.status]}</td></tr>`).join('');
+}
+
+function drawDonut(counts){
+  const c=document.getElementById('donut');if(!c)return;
+  const ctx=c.getContext('2d');
+  const colors=['#F4C3A2','#A8D0E6','#FFB7C5','#7AB2B0','#E89F9F'];
+  const labels=Object.keys(counts),vals=Object.values(counts);
+  const total=vals.reduce((a,b)=>a+b,0)||1;let angle=-Math.PI/2;
+  ctx.clearRect(0,0,110,110);
+  vals.forEach((v,i)=>{if(!v)return;const s=v/total*Math.PI*2;ctx.beginPath();ctx.moveTo(55,55);ctx.arc(55,55,50,angle,angle+s);ctx.closePath();ctx.fillStyle=colors[i];ctx.fill();angle+=s;});
+  ctx.beginPath();ctx.arc(55,55,28,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.fillStyle='#2D3E50';ctx.font='bold 13px Inter';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(total,55,55);
+  document.getElementById('donut-legend').innerHTML=labels.map((l,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${l}: ${vals[i]}</div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOMERS
+// ═══════════════════════════════════════════════════════════════
+function renderCustomers(){
+  const q=(gv('cus-search')||'').toLowerCase();
+  const rows=db.customers.filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q));
+  document.getElementById('cus-row-count').textContent=rows.length+' customers';
+  document.getElementById('cus-pg-sub').textContent=rows.length+' customers';
+  const orderCount=id=>db.orders.filter(o=>o.customerId===id).length;
+  renderTablePage('cus', rows, pages.cus, (slice)=>{
+    return slice.map(c=>`<tr>
+      <td><span class="badge badge-neutral">#${c.id}</span></td>
+      <td><b>${esc(c.name)}</b></td>
+      <td style="font-family:'Inter',monospace;font-size:12px">${c.phone}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt2)">${esc(c.address)}</td>
+      <td style="color:var(--txt3);font-size:12px">${c.email}</td>
+      <td><span class="badge badge-primary">${orderCount(c.id)} orders</span></td>
+      <td style="color:var(--txt3);font-size:12px">${fmtDate(c.createdAt)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="viewCustomer(${c.id})">View</button></td>
+    </tr>`).join('');
+  }, 'cus-tbody', 'cus-pagination');
+}
+
+function viewCustomer(id){
+  const c=db.customers.find(x=>x.id===id);
+  const orders=db.orders.filter(o=>o.customerId===id);
+  const totalExp=orders.reduce((a,o)=>{const d=db.deliveries.find(d=>d.orderId===o.id);return a+(d?db.expenses.filter(e=>e.deliveryId===d.id).reduce((s,e)=>s+e.amount,0):0);},0);
+  document.getElementById('modal-detail-title').textContent='Customer: '+c.name;
+  document.getElementById('modal-detail-content').innerHTML=`
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-key">Name</div><div class="detail-val">${esc(c.name)}</div></div>
+      <div class="detail-item"><div class="detail-key">Phone</div><div class="detail-val">${c.phone}</div></div>
+      <div class="detail-item"><div class="detail-key">Email</div><div class="detail-val">${c.email}</div></div>
+      <div class="detail-item"><div class="detail-key">Joined</div><div class="detail-val">${fmtDate(c.createdAt)}</div></div>
+      <div class="detail-item" style="grid-column:1/-1"><div class="detail-key">Address</div><div class="detail-val">${esc(c.address)}</div></div>
+      <div class="detail-item"><div class="detail-key">Total Orders</div><div class="detail-val" style="color:var(--primary-dark)">${orders.length}</div></div>
+      <div class="detail-item"><div class="detail-key">Total Spent</div><div class="detail-val" style="color:var(--primary-dark)">${fmtMoney(totalExp)}</div></div>
+    </div>
+    <div class="section-label">Recent Orders (${orders.length})</div>
+    ${orders.slice(-8).map(o=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--bg);border-radius:10px;margin-bottom:7px">
+      <span class="badge badge-neutral">#${o.id}</span>
+      <span style="flex:1;font-size:13px">${fmtDate(o.orderDate)} · ${o.weight}kg</span>
+      ${SB[o.status]}
+    </div>`).join('')||'<div class="empty" style="padding:20px">No orders yet</div>'}
+  `;
+  document.getElementById('modal-detail-footer').innerHTML=`<button class="btn btn-outline" onclick="closeModal('modal-detail')">Close</button>`;
+  openModal('modal-detail');
+}
+
+function addCustomer(){
+  const name=gv('f-cus-name'),phone=gv('f-cus-phone'),addr=gv('f-cus-addr'),email=gv('f-cus-email');
+  if(!name||!phone||!addr){toast('Please fill all required fields','error');return;}
+  if(db.customers.find(c=>c.phone===phone)){toast('Phone number already exists','error');return;}
+  const c={id:nextId.cus++,name,phone,address:addr,email,createdAt:new Date().toISOString().slice(0,10)};
+  db.customers.push(c);
+  logAudit('CREATE','Customers',c.id,`Name: ${name} | Phone: ${phone} | Address: ${addr}`);
+  closeModal('modal-add-customer');
+  clearForm(['f-cus-name','f-cus-phone','f-cus-addr','f-cus-email']);
+  toast('Customer added successfully','success');
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════════════════════
+let _ordFilter='all';
+function filterOrders(st,el){
+  _ordFilter=st;
+  document.querySelectorAll('#order-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  pages.ord=1;
+  renderOrders();
+}
+function renderOrders(){
+  const q=(gv('ord-search')||'').toLowerCase();
+  let rows=db.orders.filter(o=>{
+    if(_ordFilter!=='all'&&o.status!==_ordFilter) return false;
+    if(q&&!o.customerName.toLowerCase().includes(q)&&!String(o.id).includes(q)) return false;
+    return true;
+  });
+  document.getElementById('ord-row-count').textContent=rows.length+' orders';
+  document.getElementById('ord-pg-sub').textContent=rows.length+' orders';
+  const expFor=id=>{const d=db.deliveries.find(x=>x.orderId===id);return d?db.expenses.filter(e=>e.deliveryId===d.id).reduce((a,e)=>a+e.amount,0):0;};
+  renderTablePage('ord', rows, pages.ord, (slice)=>{
+    return slice.map(o=>`<tr>
+      <td><span class="badge badge-neutral">#${String(o.id).padStart(3,'0')}</span></td>
+      <td><b>${esc(o.customerName)}</b></td>
+      <td style="color:var(--txt3)">${fmtDate(o.orderDate)}</td>
+      <td>${o.weight}kg</td>
+      <td>${SB[o.status]}</td>
+      <td>${expFor(o.id)?fmtMoney(expFor(o.id)):'—'}</td>
+      <td style="display:flex;gap:5px;flex-wrap:nowrap">
+        <button class="btn btn-outline btn-sm" onclick="viewOrder(${o.id})">Details</button>
+        ${o.status==='In Transit'?`<button class="btn btn-success btn-sm" onclick="completeOrder(${o.id})">Complete</button>`:''}
+        ${['Pending','Assigned'].includes(o.status)?`<button class="btn btn-danger btn-sm" onclick="cancelOrder(${o.id})">Cancel</button>`:''}
+      </td>
+    </tr>`).join('');
+  }, 'ord-tbody', 'ord-pagination');
+}
+
+function viewOrder(id){
+  const o=db.orders.find(x=>x.id===id);
+  const del=db.deliveries.find(d=>d.orderId===id);
+  const exps=del?db.expenses.filter(e=>e.deliveryId===del.id):[];
+  const total=exps.reduce((a,e)=>a+e.amount,0);
+  document.getElementById('modal-detail-title').textContent=`Order #${o.id}`;
+  document.getElementById('modal-detail-content').innerHTML=`
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-key">Customer</div><div class="detail-val">${esc(o.customerName)}</div></div>
+      <div class="detail-item"><div class="detail-key">Order Date</div><div class="detail-val">${fmtDate(o.orderDate)}</div></div>
+      <div class="detail-item"><div class="detail-key">Weight</div><div class="detail-val">${o.weight} kg</div></div>
+      <div class="detail-item"><div class="detail-key">Status</div><div class="detail-val">${SB[o.status]}</div></div>
+      ${o.notes?`<div class="detail-item" style="grid-column:1/-1"><div class="detail-key">Notes</div><div class="detail-val">${esc(o.notes)}</div></div>`:''}
+    </div>
+    ${del?`<div class="section-label">Delivery Information</div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-key">Driver</div><div class="detail-val">${esc(del.driverName)}</div></div>
+      <div class="detail-item"><div class="detail-key">Vehicle</div><div class="detail-val">${del.vehicleType} — ${del.vehiclePlate}</div></div>
+      <div class="detail-item"><div class="detail-key">Delivery Date</div><div class="detail-val">${fmtDate(del.deliveryDate)}</div></div>
+      <div class="detail-item"><div class="detail-key">Delivery Status</div><div class="detail-val">${SB[del.status]}</div></div>
+    </div>`:'<div class="section-label">No delivery assigned yet</div>'}
+    <div class="section-label">Expenses — Total: ${fmtMoney(total)}</div>
+    ${exps.length?exps.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg);border-radius:10px;margin-bottom:7px">
+      <span><span class="badge badge-primary">${e.type}</span> <span style="font-size:13px;color:var(--txt2)">${esc(e.description)}</span></span>
+      <b style="font-size:13px">${fmtMoney(e.amount)}</b>
+    </div>`).join(''):'<div class="empty" style="padding:20px">No expenses recorded</div>'}
+  `;
+  const ft=[];
+  if(['Pending','Assigned'].includes(o.status)) ft.push(`<button class="btn btn-danger btn-sm" onclick="cancelOrder(${o.id});closeModal('modal-detail')">Cancel Order</button>`);
+  if(o.status==='In Transit') ft.push(`<button class="btn btn-success btn-sm" onclick="completeOrder(${o.id});closeModal('modal-detail')">Mark Completed</button>`);
+  document.getElementById('modal-detail-footer').innerHTML=`<button class="btn btn-outline" onclick="closeModal('modal-detail')">Close</button>${ft.join('')}`;
+  openModal('modal-detail');
+}
+
+function completeOrder(id){
+  const o=db.orders.find(x=>x.id===id);
+  const del=db.deliveries.find(d=>d.orderId===id);
+  const prevStatus=o.status;
+  if(o)o.status='Completed';
+  if(del){del.status='Delivered';const v=db.vehicles.find(x=>x.id===del.vehicleId);if(v)v.status='Available';}
+  logAudit('UPDATE','Orders',id,`Status: ${prevStatus} → Completed${del?' | Delivery #'+del.id+' → Delivered':''}`);
+  toast('Order #'+id+' completed successfully','success');
+  refresh();
+}
+function cancelOrder(id){
+  const o=db.orders.find(x=>x.id===id);
+  const del=db.deliveries.find(d=>d.orderId===id);
+  const prevStatus=o.status;
+  if(o)o.status='Cancelled';
+  if(del){del.status='Failed';const v=db.vehicles.find(x=>x.id===del.vehicleId);if(v)v.status='Available';}
+  logAudit('UPDATE','Orders',id,`Status: ${prevStatus} → Cancelled`);
+  toast('Order #'+id+' cancelled','error');
+  refresh();
+}
+function addOrder(){
+  const cusId=parseInt(gv('f-ord-cus')),weight=parseFloat(gv('f-ord-weight')),driver=gv('f-ord-driver'),date=gv('f-ord-date');
+  if(!cusId||!weight||!driver||!date){toast('Please fill all required fields','error');return;}
+  const cus=db.customers.find(c=>c.id===cusId);
+  const notes=gv('f-ord-notes');
+  const ord={id:nextId.ord++,customerId:cusId,customerName:cus.name,orderDate:new Date().toISOString().slice(0,10),status:'Assigned',weight,notes:notes||null};
+  db.orders.push(ord);
+  const veh=db.vehicles.find(v=>v.status==='Available'&&v.capacity>=weight);
+  if(veh){
+    veh.status='In Use';
+    const del={id:nextId.del++,orderId:ord.id,vehicleId:veh.id,vehiclePlate:veh.plate,vehicleType:veh.type,driverName:driver,deliveryDate:date,status:'Scheduled',createdAt:new Date().toISOString().slice(0,10)};
+    db.deliveries.push(del);
+    logAudit('CREATE','Orders',ord.id,`Customer: ${cus.name} | Weight: ${weight}kg | Driver: ${driver} | Vehicle: ${veh.plate}`);
+    logAudit('CREATE','Deliveries',del.id,`Order #${ord.id} → Vehicle ${veh.plate} | Driver: ${driver} | Date: ${date}`);
+    toast(`Order #${ord.id} created — vehicle ${veh.plate} assigned`,'success');
+  } else {
+    ord.status='Pending';
+    logAudit('CREATE','Orders',ord.id,`Customer: ${cus.name} | Weight: ${weight}kg | Status: Pending (no vehicle available)`);
+    toast(`Order #${ord.id} created — no vehicle available, status: Pending`,'warning');
+  }
+  closeModal('modal-add-order');
+  clearForm(['f-ord-cus','f-ord-weight','f-ord-driver','f-ord-date','f-ord-notes']);
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DELIVERIES
+// ═══════════════════════════════════════════════════════════════
+function renderDeliveries(){
+  const q=(gv('del-search')||'').toLowerCase();
+  const rows=db.deliveries.filter(d=>!q||d.driverName.toLowerCase().includes(q)||d.vehiclePlate.toLowerCase().includes(q)||String(d.id).includes(q));
+  document.getElementById('del-row-count').textContent=rows.length+' deliveries';
+  document.getElementById('del-pg-sub').textContent=rows.length+' delivery records';
+  renderTablePage('del', rows, pages.del, (slice)=>{
+    return slice.map(d=>`<tr>
+      <td><span class="badge badge-neutral">#${String(d.id).padStart(3,'0')}</span></td>
+      <td><span class="badge badge-primary">Order #${d.orderId}</span></td>
+      <td><b>${esc(d.driverName)}</b></td>
+      <td style="font-size:12px">${d.vehicleType} — <span style="font-family:'Inter',monospace">${d.vehiclePlate}</span></td>
+      <td style="color:var(--txt3)">${fmtDate(d.deliveryDate)}</td>
+      <td>${SB[d.status]}</td>
+      <td>${d.status==='Scheduled'||d.status==='In Transit'?`<button class="btn btn-success btn-sm" onclick="completeDelivery(${d.id})">Complete</button>`:''}</td>
+    </tr>`).join('');
+  }, 'del-tbody', 'del-pagination');
+}
+function completeDelivery(id){
+  const del=db.deliveries.find(d=>d.id===id);if(!del)return;
+  const prevStatus=del.status;
+  del.status='Delivered';
+  const o=db.orders.find(x=>x.id===del.orderId);if(o)o.status='Completed';
+  const v=db.vehicles.find(x=>x.id===del.vehicleId);if(v)v.status='Available';
+  logAudit('UPDATE','Deliveries',id,`Status: ${prevStatus} → Delivered | Order #${del.orderId} → Completed | Vehicle ${del.vehiclePlate} → Available`);
+  toast('Delivery #'+id+' completed — vehicle released','success');
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VEHICLES
+// ═══════════════════════════════════════════════════════════════
+function renderVehicles(){
+  const grid=document.getElementById('vehicle-cards');
+  grid.innerHTML=db.vehicles.map(v=>{
+    const trips=db.deliveries.filter(d=>d.vehicleId===v.id).length;
+    const done=db.deliveries.filter(d=>d.vehicleId===v.id&&d.status==='Delivered').length;
+    return `<div class="card" style="margin-bottom:0">
+      <div style="font-weight:800;font-size:17px;margin-bottom:4px;font-family:'Inter',monospace">${v.plate}</div>
+      <div style="color:var(--txt3);font-size:13px;margin-bottom:12px">${v.type} · ${v.capacity}kg max</div>
+      <div style="margin-bottom:14px">${SB[v.status]}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:var(--txt2)">
+        <div style="padding:8px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-weight:800;font-size:18px;color:var(--txt)">${trips}</div><div>Trips</div></div>
+        <div style="padding:8px;background:var(--bg);border-radius:8px;text-align:center"><div style="font-weight:800;font-size:18px;color:var(--success)">${done}</div><div>Completed</div></div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">No vehicles registered</div>';
+}
+function addVehicle(){
+  const type=gv('f-veh-type'),plate=gv('f-veh-plate'),cap=parseFloat(gv('f-veh-cap'));
+  if(!plate||!cap){toast('Please fill all required fields','error');return;}
+  if(db.vehicles.find(x=>x.plate===plate)){toast('License plate already exists','error');return;}
+  const v={id:nextId.veh++,type,plate,capacity:cap,status:'Available',createdAt:new Date().toISOString().slice(0,10)};
+  db.vehicles.push(v);
+  logAudit('CREATE','Vehicles',v.id,`Type: ${type} | Plate: ${plate} | Capacity: ${cap}kg`);
+  closeModal('modal-add-vehicle');
+  clearForm(['f-veh-plate','f-veh-cap']);
+  toast('Vehicle added successfully','success');
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPENSES
+// ═══════════════════════════════════════════════════════════════
+function renderExpenses(){
+  const q=(gv('exp-search')||'').toLowerCase();
+  const rows=[...db.expenses].reverse().filter(e=>!q||String(e.deliveryId).includes(q)||e.type.toLowerCase().includes(q)||e.description.toLowerCase().includes(q));
+  document.getElementById('exp-row-count').textContent=rows.length+' expenses';
+  document.getElementById('exp-pg-sub').textContent=rows.length+' expense records';
+  renderTablePage('exp', rows, pages.exp, (slice)=>{
+    return slice.map(e=>`<tr>
+      <td><span class="badge badge-neutral">#${String(e.id).padStart(3,'0')}</span></td>
+      <td><span class="badge badge-primary">Delivery #${e.deliveryId}</span></td>
+      <td>${e.type}</td>
+      <td><b style="color:var(--danger)">${fmtMoney(e.amount)}</b></td>
+      <td style="color:var(--txt2);font-size:12px">${esc(e.description)}</td>
+      <td style="color:var(--txt3);font-size:12px">${fmtDate(e.recordedAt)}</td>
+    </tr>`).join('');
+  }, 'exp-tbody', 'exp-pagination');
+}
+function addExpense(){
+  const delId=parseInt(gv('f-exp-del')),type=gv('f-exp-type'),amt=parseFloat(gv('f-exp-amt')),desc=gv('f-exp-desc');
+  if(!delId||!type||!amt){toast('Please fill all required fields','error');return;}
+  if(amt<=0){toast('Amount must be greater than 0','error');return;}
+  const e={id:nextId.exp++,deliveryId:delId,type,amount:amt,description:desc||type,recordedAt:new Date().toISOString().slice(0,10)};
+  db.expenses.push(e);
+  logAudit('CREATE','Expenses',e.id,`Delivery #${delId} | Type: ${type} | Amount: ${fmtMoney(amt)} | ${desc||''}`);
+  closeModal('modal-add-expense');
+  clearForm(['f-exp-del','f-exp-amt','f-exp-desc']);
+  toast('Expense recorded','success');
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════════════════════════
+function renderReports(){
+  // Top customers
+  const cusTotals=db.customers.map(c=>{
+    const orders=db.orders.filter(o=>o.customerId===c.id);
+    const exp=orders.reduce((a,o)=>{const d=db.deliveries.find(x=>x.orderId===o.id);return a+(d?db.expenses.filter(e=>e.deliveryId===d.id).reduce((s,e)=>s+e.amount,0):0);},0);
+    return{name:c.name,orders:orders.length,exp};
+  }).sort((a,b)=>b.orders-a.orders).slice(0,10);
+  const rankLabels=['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
+  document.getElementById('rpt-top-cus').innerHTML=cusTotals.map((c,i)=>`<tr>
+    <td><span class="badge badge-neutral">${rankLabels[i]}</span></td>
+    <td>${esc(c.name)}</td>
+    <td><span class="badge badge-primary">${c.orders}</span></td>
+    <td>${c.exp?fmtMoney(c.exp):'—'}</td>
+  </tr>`).join('');
+
+  // Vehicle performance
+  const vehPerf=db.vehicles.map(v=>{
+    const dels=db.deliveries.filter(d=>d.vehicleId===v.id);
+    const done=dels.filter(d=>d.status==='Delivered').length;
+    const rate=dels.length?Math.round(done/dels.length*100):0;
+    return{plate:v.plate,type:v.type,total:dels.length,done,rate};
+  }).sort((a,b)=>b.total-a.total).slice(0,10);
+  document.getElementById('rpt-vehicle').innerHTML=vehPerf.map(v=>`<tr>
+    <td style="font-family:'Inter',monospace;font-size:12px">${v.plate}</td>
+    <td style="color:var(--txt3)">${v.type}</td>
+    <td><span class="badge badge-primary">${v.total}</span></td>
+    <td><span class="badge badge-success">${v.done}</span></td>
+    <td><span class="badge ${v.rate>=80?'badge-success':v.rate>=50?'badge-warning':'badge-danger'}">${v.rate}%</span></td>
+  </tr>`).join('');
+
+  // Expense types
+  const typeMap={};db.expenses.forEach(e=>{typeMap[e.type]=(typeMap[e.type]||0)+e.amount;});
+  const maxE=Math.max(...Object.values(typeMap),1);
+  document.getElementById('rpt-expense-types').innerHTML=Object.entries(typeMap).sort((a,b)=>b[1]-a[1]).map(([t,a])=>`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px;margin-bottom:5px">
+        <span>${t}</span><span>${fmtMoney(a)}</span>
+      </div>
+      <div style="background:var(--bdr);border-radius:20px;height:7px">
+        <div style="width:${Math.round(a/maxE*100)}%;height:100%;background:var(--pink-pastel);border-radius:20px;transition:width .6s ease"></div>
+      </div>
+    </div>`).join('')||'<div class="empty">No expense data</div>';
+
+  // Outstanding
+  const outstanding=db.orders.filter(o=>['Pending','Assigned'].includes(o.status))
+    .map(o=>({...o,days:Math.floor((Date.now()-new Date(o.orderDate+'T00:00:00').getTime())/86400000)}))
+    .sort((a,b)=>b.days-a.days).slice(0,10);
+  document.getElementById('rpt-outstanding').innerHTML=outstanding.map(o=>`<tr>
+    <td><span class="badge badge-neutral">#${o.id}</span></td>
+    <td>${esc(o.customerName)}</td>
+    <td style="color:var(--txt3)">${fmtDate(o.orderDate)}</td>
+    <td><span class="badge ${o.days>7?'badge-danger':o.days>3?'badge-warning':'badge-neutral'}">${o.days} days</span></td>
+  </tr>`).join('')||'<tr><td colspan="4" class="empty">All orders processed</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL & SELECTS
+// ═══════════════════════════════════════════════════════════════
+function populateSelects(){
+  const sc=document.getElementById('f-ord-cus');
+  if(sc){
+    const val=sc.value;
+    sc.innerHTML='<option value="">-- Select customer --</option>'+
+      db.customers.map(c=>`<option value="${c.id}">${esc(c.name)} — ${c.phone}</option>`).join('');
+    sc.value=val;
+  }
+  const sd=document.getElementById('f-exp-del');
+  if(sd) sd.innerHTML='<option value="">-- Select delivery --</option>'+
+    db.deliveries.map(d=>`<option value="${d.id}">Delivery #${d.id} — ${esc(d.driverName)} (Order #${d.orderId})</option>`).join('');
+}
+function openModal(id){
+  populateSelects();
+  document.getElementById(id).classList.add('open');
+  const df=document.getElementById('f-ord-date');
+  if(df&&!df.value){const d=new Date();d.setDate(d.getDate()+1);df.value=d.toISOString().slice(0,10);}
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ═══════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════
+function toast(msg,type='info'){
+  const div=document.createElement('div');
+  div.className=`toast-item ${type}`;
+  div.textContent=(type==='success'?'✓ ':type==='error'?'✗ ':type==='warning'?'⚠ ':'ℹ ')+msg;
+  document.getElementById('toast').appendChild(div);
+  setTimeout(()=>div.remove(),3500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REAL-TIME CLOCK
+// ═══════════════════════════════════════════════════════════════
+function updateClock(){
+  const now=new Date();
+  document.getElementById('sb-clock').textContent=
+    now.toLocaleDateString('en-GB')+' · '+now.toLocaleTimeString('en-GB');
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// ═══════════════════════════════════════════════════════════════
+// REAL-TIME AUTO-REFRESH (simulate live updates every 30s)
+// ═══════════════════════════════════════════════════════════════
+setInterval(()=>{
+  // Randomly flip a few In Transit deliveries to Delivered (simulate real-time)
+  const active=db.deliveries.filter(d=>d.status==='In Transit');
+  if(active.length>0&&Math.random()<0.3){
+    const d=active[Math.floor(Math.random()*active.length)];
+    d.status='Delivered';
+    const o=db.orders.find(x=>x.id===d.orderId);
+    if(o&&o.status==='In Transit'){
+      o.status='Completed';
+      const v=db.vehicles.find(x=>x.id===d.vehicleId);
+      if(v)v.status='Available';
+      logAudit('UPDATE','Deliveries',d.id,`[Auto] Status → Delivered | Order #${d.orderId} → Completed`);
+      renderSideBadges();
+      if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+      if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
+      if(document.getElementById('page-deliveries').classList.contains('active')) renderDeliveries();
+    }
+  }
+}, 30000);
+
+// ═══════════════════════════════════════════════════════════════
+// AI ASSISTANT — Real Anthropic API
+// ═══════════════════════════════════════════════════════════════
+function quickAsk(q){document.getElementById('ai-input').value=q;sendAI();}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const q=inp.value.trim();
+  if(!q)return;
+  inp.value='';
+  const chat=document.getElementById('ai-chat');
+
+  chat.innerHTML+=`<div class="ai-msg-user">${esc(q)}</div>`;
+
+  const thinking=document.createElement('div');
+  thinking.className='ai-msg-ai';
+  thinking.innerHTML='<span style="color:var(--txt3)">Analyzing data...</span>';
+  chat.appendChild(thinking);
+  chat.scrollTop=chat.scrollHeight;
+
+  // Build rich data context
+  const totExp=db.expenses.reduce((a,e)=>a+e.amount,0);
+  const typeBreakdown=Object.entries(db.expenses.reduce((m,e)=>{m[e.type]=(m[e.type]||0)+e.amount;return m;},{}))
+    .sort((a,b)=>b[1]-a[1]).map(([t,a])=>`${t}: ${fmtMoney(a)}`).join(', ');
+  const topCus=db.customers.map(c=>({name:c.name,n:db.orders.filter(o=>o.customerId===c.id).length}))
+    .sort((a,b)=>b.n-a.n).slice(0,5).map(c=>`${c.name}(${c.n})`).join(', ');
+  const topVeh=db.vehicles.map(v=>{
+    const d=db.deliveries.filter(x=>x.vehicleId===v.id);
+    const done=d.filter(x=>x.status==='Delivered').length;
+    return{plate:v.plate,type:v.type,n:d.length,done,rate:d.length?Math.round(done/d.length*100):0};
+  }).sort((a,b)=>b.rate-a.rate).slice(0,3).map(v=>`${v.plate}(${v.type},${v.n} trips,${v.rate}%)`).join(', ');
+
+  const systemPrompt=`You are an expert data analyst AI assistant embedded in PinkDrop Delivery Management System (delivery with hannie).
+
+LIVE DATABASE SNAPSHOT (${new Date().toLocaleString()}):
+- Customers: ${db.customers.length} total
+- Vehicles: ${db.vehicles.length} total (${db.vehicles.filter(v=>v.status==='Available').length} available, ${db.vehicles.filter(v=>v.status==='In Use').length} in use, ${db.vehicles.filter(v=>v.status==='Maintenance').length} maintenance)
+- Orders: ${db.orders.length} total | Pending: ${db.orders.filter(o=>o.status==='Pending').length} | Assigned: ${db.orders.filter(o=>o.status==='Assigned').length} | In Transit: ${db.orders.filter(o=>o.status==='In Transit').length} | Completed: ${db.orders.filter(o=>o.status==='Completed').length} | Cancelled: ${db.orders.filter(o=>o.status==='Cancelled').length}
+- Deliveries: ${db.deliveries.length} total | Scheduled: ${db.deliveries.filter(d=>d.status==='Scheduled').length} | In Transit: ${db.deliveries.filter(d=>d.status==='In Transit').length} | Delivered: ${db.deliveries.filter(d=>d.status==='Delivered').length} | Failed: ${db.deliveries.filter(d=>d.status==='Failed').length}
+- Expenses: ${db.expenses.length} records | Total: ${fmtMoney(totExp)}
+- Expense breakdown: ${typeBreakdown}
+- Top customers by orders: ${topCus}
+- Top vehicles by completion rate: ${topVeh}
+- Audit events this session: ${auditLog.filter(a=>a.session===sessionId).length}
+- Completion rate: ${db.orders.length?Math.round(db.orders.filter(o=>o.status==='Completed').length/db.orders.length*100):0}%
+
+Reply in English. Be analytical, specific, and reference actual numbers from the data. Format with clear structure using line breaks. Keep responses concise but insightful (3-6 sentences or a short list).`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:systemPrompt,
+        messages:[{role:'user',content:q}]
+      })
+    });
+    const data=await res.json();
+    if(data.error){
+      thinking.innerHTML=`<span style="color:var(--danger)">API Error: ${esc(data.error.message)}</span>`;
+    } else {
+      const text=data.content?.[0]?.text||'No response.';
+      thinking.innerHTML=`<strong>AI Assistant</strong><br>${esc(text).replace(/\n/g,'<br>')}`;
+    }
+  } catch(err){
+    thinking.innerHTML=`<span style="color:var(--danger)">Connection failed. Check network or API access.</span>`;
+  }
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════
+seed();
+refresh();
+</script>
+</body>
+</html>
