@@ -6,15 +6,17 @@
 ## File Structure
 
 ```
-deliverysystem/
-├── 01_schema.sql          ← Create database & all 5 tables
-├── 02_sample_data.sql     ← 510 rows × 5 tables (auto-generated)
-├── 02_sample_data.py      ← Python Faker script to regenerate data
-├── 03_advanced_objects.sql ← Indexes, Views, Procedures, Functions, Triggers
-├── 04_security.sql        ← Users, GRANT, roles
-├── 05_python_app.py       ← Console application (full CRUD + reports)
+.
+├── deliverysystem/
+│   ├── 01_schema.sql
+│   ├── 02_sample_data.sql
+│   ├── 02_sample_data.py
+│   ├── 03_advanced_objects.sql
+│   ├── 04_security.sql
+│   ├── 05_python_app.py
+│   └── api.py
+├── index.html
 └── README.md
-```
 
 ---
 
