@@ -1,9 +1,9 @@
-# 🚚 Delivery Service Management System
+# Delivery Service Management System
 **PROJECT 10 — NEU College of Technology | DATCOM Lab**
 
 ---
 
-## 📁 File Structure
+## File Structure
 
 ```
 deliverysystem/
@@ -18,7 +18,7 @@ deliverysystem/
 
 ---
 
-## ⚡ Quick Start (Run in order)
+## Quick Start (Run in order)
 
 ```bash
 # 1. Load schema
@@ -40,7 +40,7 @@ python 05_python_app.py
 
 ---
 
-## 🗄️ Database Design
+## Database Design
 
 ### Tables
 
@@ -60,7 +60,7 @@ python 05_python_app.py
 
 ---
 
-## 🔧 Advanced Objects Summary
+## Advanced Objects Summary
 
 ### Indexes (11 total)
 - Orders: CustomerID, Status, OrderDate
@@ -105,7 +105,7 @@ python 05_python_app.py
 
 ---
 
-## 👥 Database Users & Roles
+## Database Users & Roles
 
 | User | Role | Permissions |
 |------|------|------------|
@@ -115,13 +115,13 @@ python 05_python_app.py
 
 ---
 
-## 🐍 Python App Features
+## Python App Features
 
-- ✅ Add/Search/View Customers
-- ✅ Create Orders with auto vehicle assignment
-- ✅ Complete Deliveries (triggers status updates)
-- ✅ Record & View Expenses
-- ✅ 5 Report modules (Cost, Vehicle, Monthly, Customer, Top 10)
-- ✅ Color-coded terminal UI (pink & cyan theme)
-- ✅ Error handling with try/except for all DB calls
+- Add/Search/View Customers
+- Create Orders with auto vehicle assignment
+- Complete Deliveries (triggers status updates)
+- Record & View Expenses
+- 5 Report modules (Cost, Vehicle, Monthly, Customer, Top 10)
+- Color-coded terminal UI (pink & cyan theme)
+- Error handling with try/except for all DB calls
 
