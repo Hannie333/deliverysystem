@@ -1,8 +1,3 @@
--- ============================================================
--- PROJECT 10: DELIVERY SERVICE MANAGEMENT SYSTEM
--- File: 03_advanced_objects.sql
--- Indexes | Views | Stored Procedures | Functions | Triggers
--- ============================================================
 USE DeliverySystem;
 
 -- ============================================================
@@ -398,17 +393,4 @@ END$$
 
 DELIMITER ;
 
--- ============================================================
--- SECTION 6: QUICK VERIFY QUERIES
--- ============================================================
--- Run these after loading all data to sanity-check:
--- SELECT * FROM vw_CurrentDeliveries    LIMIT 5;
--- SELECT * FROM vw_CostPerOrder         LIMIT 5;
--- SELECT * FROM vw_VehiclePerformance   LIMIT 5;
--- SELECT * FROM vw_OutstandingOrders    LIMIT 5;
--- SELECT * FROM vw_MonthlyExpenseSummary LIMIT 10;
--- SELECT fn_AvgDeliveryCostByVehicle(1);
--- SELECT fn_DeliveryCountByVehicle(1);
--- SELECT fn_TotalExpenseByOrder(1);
--- CALL sp_CustomerOrderHistory(1);
 

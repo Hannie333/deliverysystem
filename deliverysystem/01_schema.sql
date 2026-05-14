@@ -1,10 +1,3 @@
--- ============================================================
--- PROJECT 10: DELIVERY SERVICE MANAGEMENT SYSTEM
--- NEU - College of Technology | DATCOM Lab
--- Author: Delivery Team
--- File: 01_schema.sql - Database Schema
--- ============================================================
-
 DROP DATABASE IF EXISTS DeliverySystem;
 CREATE DATABASE DeliverySystem
   CHARACTER SET utf8mb4
