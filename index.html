@@ -278,7 +278,6 @@ textarea{resize:vertical;min-height:72px}
     <button class="sb-item" onclick="gotoPage('expenses',this)">Expenses</button>
     <button class="sb-item" onclick="gotoPage('reports',this)">Reports</button>
     <button class="sb-item" onclick="gotoPage('audit',this)">Audit Log <span class="sb-badge" id="nb-audit">0</span></button>
-    <button class="sb-item" onclick="gotoPage('ai',this)">AI Assistant</button>
   </div>
   <div class="sb-clock" id="sb-clock">Loading...</div>
   <div class="sb-footer">delivery with hannie</div>
@@ -457,30 +456,6 @@ textarea{resize:vertical;min-height:72px}
         </table>
       </div>
       <div class="pagination" id="audit-pagination"></div>
-    </div>
-  </div>
-
-  <!-- AI ASSISTANT -->
-  <div class="page" id="page-ai">
-    <div class="pg-header">
-      <div class="pg-left"><div class="pg-title">AI Assistant</div><div class="pg-sub">Powered by Claude — Ask anything about your data</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Chat with AI</div>
-      <div class="ai-chat-wrap" id="ai-chat">
-        <div class="ai-msg-ai">Hello! I'm Claude, your AI assistant for the Delivery Management System. I have full access to your live data — ask me about orders, expenses, performance, or anything else!</div>
-      </div>
-      <div class="ai-row">
-        <input type="text" id="ai-input" placeholder="Ask about orders, costs, vehicle performance, trends..." onkeydown="if(event.key==='Enter')sendAI()">
-        <button class="btn btn-primary" onclick="sendAI()">Send</button>
-      </div>
-      <div class="ai-chips">
-        <div class="ai-chip" onclick="quickAsk('Give me a full performance analysis of this delivery system')">Full analysis</div>
-        <div class="ai-chip" onclick="quickAsk('Which customers have the most orders and how much have they spent?')">Top customers</div>
-        <div class="ai-chip" onclick="quickAsk('What are the main cost drivers and how can we reduce expenses?')">Cost optimization</div>
-        <div class="ai-chip" onclick="quickAsk('Which vehicles are most efficient? Give me a detailed breakdown.')">Fleet efficiency</div>
-        <div class="ai-chip" onclick="quickAsk('Are there any orders that have been pending too long? List the oldest ones.')">Overdue orders</div>
-      </div>
     </div>
   </div>
 
@@ -1272,82 +1247,6 @@ setInterval(()=>{
     }
   }
 }, 30000);
-
-// ═══════════════════════════════════════════════════════════════
-// AI ASSISTANT — Real Anthropic API
-// ═══════════════════════════════════════════════════════════════
-function quickAsk(q){document.getElementById('ai-input').value=q;sendAI();}
-
-async function sendAI(){
-  const inp=document.getElementById('ai-input');
-  const q=inp.value.trim();
-  if(!q)return;
-  inp.value='';
-  const chat=document.getElementById('ai-chat');
-
-  chat.innerHTML+=`<div class="ai-msg-user">${esc(q)}</div>`;
-
-  const thinking=document.createElement('div');
-  thinking.className='ai-msg-ai';
-  thinking.innerHTML='<span style="color:var(--txt3)">Analyzing data...</span>';
-  chat.appendChild(thinking);
-  chat.scrollTop=chat.scrollHeight;
-
-  // Build rich data context
-  const totExp=db.expenses.reduce((a,e)=>a+e.amount,0);
-  const typeBreakdown=Object.entries(db.expenses.reduce((m,e)=>{m[e.type]=(m[e.type]||0)+e.amount;return m;},{}))
-    .sort((a,b)=>b[1]-a[1]).map(([t,a])=>`${t}: ${fmtMoney(a)}`).join(', ');
-  const topCus=db.customers.map(c=>({name:c.name,n:db.orders.filter(o=>o.customerId===c.id).length}))
-    .sort((a,b)=>b.n-a.n).slice(0,5).map(c=>`${c.name}(${c.n})`).join(', ');
-  const topVeh=db.vehicles.map(v=>{
-    const d=db.deliveries.filter(x=>x.vehicleId===v.id);
-    const done=d.filter(x=>x.status==='Delivered').length;
-    return{plate:v.plate,type:v.type,n:d.length,done,rate:d.length?Math.round(done/d.length*100):0};
-  }).sort((a,b)=>b.rate-a.rate).slice(0,3).map(v=>`${v.plate}(${v.type},${v.n} trips,${v.rate}%)`).join(', ');
-
-  const systemPrompt=`You are an expert data analyst AI assistant embedded in PinkDrop Delivery Management System (delivery with hannie).
-
-LIVE DATABASE SNAPSHOT (${new Date().toLocaleString()}):
-- Customers: ${db.customers.length} total
-- Vehicles: ${db.vehicles.length} total (${db.vehicles.filter(v=>v.status==='Available').length} available, ${db.vehicles.filter(v=>v.status==='In Use').length} in use, ${db.vehicles.filter(v=>v.status==='Maintenance').length} maintenance)
-- Orders: ${db.orders.length} total | Pending: ${db.orders.filter(o=>o.status==='Pending').length} | Assigned: ${db.orders.filter(o=>o.status==='Assigned').length} | In Transit: ${db.orders.filter(o=>o.status==='In Transit').length} | Completed: ${db.orders.filter(o=>o.status==='Completed').length} | Cancelled: ${db.orders.filter(o=>o.status==='Cancelled').length}
-- Deliveries: ${db.deliveries.length} total | Scheduled: ${db.deliveries.filter(d=>d.status==='Scheduled').length} | In Transit: ${db.deliveries.filter(d=>d.status==='In Transit').length} | Delivered: ${db.deliveries.filter(d=>d.status==='Delivered').length} | Failed: ${db.deliveries.filter(d=>d.status==='Failed').length}
-- Expenses: ${db.expenses.length} records | Total: ${fmtMoney(totExp)}
-- Expense breakdown: ${typeBreakdown}
-- Top customers by orders: ${topCus}
-- Top vehicles by completion rate: ${topVeh}
-- Audit events this session: ${auditLog.filter(a=>a.session===sessionId).length}
-- Completion rate: ${db.orders.length?Math.round(db.orders.filter(o=>o.status==='Completed').length/db.orders.length*100):0}%
-
-Reply in English. Be analytical, specific, and reference actual numbers from the data. Format with clear structure using line breaks. Keep responses concise but insightful (3-6 sentences or a short list).`;
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:600,
-        system:systemPrompt,
-        messages:[{role:'user',content:q}]
-      })
-    });
-    const data=await res.json();
-    if(data.error){
-      thinking.innerHTML=`<span style="color:var(--danger)">API Error: ${esc(data.error.message)}</span>`;
-    } else {
-      const text=data.content?.[0]?.text||'No response.';
-      thinking.innerHTML=`<strong>AI Assistant</strong><br>${esc(text).replace(/\n/g,'<br>')}`;
-    }
-  } catch(err){
-    thinking.innerHTML=`<span style="color:var(--danger)">Connection failed. Check network or API access.</span>`;
-  }
-  chat.scrollTop=chat.scrollHeight;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════════════════
 seed();
 refresh();
 </script>
